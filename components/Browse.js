@@ -9,7 +9,9 @@ const GENRES = [
     { key: "18", label: "Drama" },
     { key: "878", label: "Sci-Fi" },
     { key: "53", label: "Thriller" },
+    { key: "28", label: "Action" },
     { key: "16", label: "Animation" },
+    { key: "recommendations", label: "For You" },
     { key: "my-list", label: "My List" },
 ];
 
@@ -54,17 +56,26 @@ export default function Browse({ initialMovies }) {
         const controller = new AbortController();
         const q = query.trim();
 
-        if (genre === "my-list" && !q) {
+        let url = "";
+        if (q) {
+            url = `/api/search?q=${encodeURIComponent(q)}`;
+        } else if (genre === "my-list") {
             setMovies(myList);
             setFailed(false);
             return;
+        } else if (genre === "recommendations") {
+            const allIds = [...new Set([...continueWatching.map(m => m.id), ...myList.map(m => m.id)])];
+            if (allIds.length === 0) {
+                setMovies([]);
+                setFailed(false);
+                return;
+            }
+            url = `/api/recommendations?ids=${allIds.slice(0, 3).join(",")}`;
+        } else if (genre === "all") {
+            url = "/api/popular";
+        } else {
+            url = `/api/genre/${genre}`;
         }
-
-        const url = q
-            ? `/api/search?q=${encodeURIComponent(q)}`
-            : genre === "all"
-                ? "/api/popular"
-                : `/api/genre/${genre}`;
 
         // debounce typing 400ms; tab clicks fire immediately
         const timer = setTimeout(async () => {
@@ -89,7 +100,9 @@ export default function Browse({ initialMovies }) {
             ? "Popular now"
             : genre === "my-list"
                 ? "Your saved films"
-                : `${GENRES.find((g) => g.key === genre).label} films`;
+                : genre === "recommendations"
+                    ? "Recommended for you"
+                    : `${GENRES.find((g) => g.key === genre).label} films`;
 
     return (
         <>
@@ -145,7 +158,9 @@ export default function Browse({ initialMovies }) {
                     <p className="empty">
                         {failed
                             ? "The lake is unreachable. Check your API key in .env.local."
-                            : "Nothing surfaced from the lake. Try another search."}
+                            : genre === "recommendations" && continueWatching.length === 0 && myList.length === 0 && !q
+                                ? "Save or watch films to receive personalized recommendations."
+                                : "Nothing surfaced from the lake. Try another search."}
                     </p>
                 )}
             </main>

@@ -1,9 +1,12 @@
 import Image from "next/image";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const IMG = "https://image.tmdb.org/t/p/w500";
 
 export default function MovieModal({ movie, onClose, inList, onToggleList, onPlay }) {
+    const router = useRouter();
+
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === "Escape") onClose();
@@ -34,7 +37,10 @@ export default function MovieModal({ movie, onClose, inList, onToggleList, onPla
                     </p>
                     <p className="modal-desc">{movie.overview || "No description available."}</p>
                     <div className="modal-actions">
-                        <button className="play-btn" onClick={onPlay}>▶ &nbsp;Play</button>
+                        <button className="play-btn" onClick={() => {
+                            onPlay();
+                            router.push(`/watch/movie/${movie.id}`);
+                        }}>▶ &nbsp;Play</button>
                         <button className="list-btn" onClick={onToggleList}>
                             {inList ? "✓ In List" : "+ My List"}
                         </button>

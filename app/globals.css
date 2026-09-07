@@ -394,3 +394,158 @@ main {
     width: 100%;
   }
 }
+/* ---------- Vidy Player ---------- */
+
+.vidy-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(27, 42, 53, 0.12);
+}
+
+.vidy-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  color: var(--ink);
+  font-size: 0.75rem;
+  font-family: var(--font-sora), sans-serif;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.vidy-toggle:hover {
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.vidy-badge {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  color: var(--ink);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(27, 42, 53, 0.08);
+}
+
+/* ---------- Watch Page ---------- */
+
+.watch-page {
+  min-height: 100vh;
+  background: var(--dark); /* dark theme from app */
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.watch-header {
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(14, 21, 26, 0.5);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.watch-back-btn {
+  background: transparent;
+  border: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+
+.watch-back-btn:hover {
+  color: #fff;
+}
+
+.watch-title {
+  font-size: 1.125rem;
+  font-weight: 500;
+  opacity: 0.9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.watch-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+}
+
+@media (min-width: 640px) {
+  .watch-main {
+    padding: 2rem;
+  }
+}
+
+.watch-player-wrapper {
+  width: 100%;
+  max-width: 1152px;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.watch-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 5vw;
+}
+
+.watch-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 5vw 10vh;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius);
+}
+
+.genre-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  background: var(--dark);
+  color: #eaf4fa;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  margin-right: 6px;
+  margin-bottom: 6px;
+}
