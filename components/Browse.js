@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import TypingHero from "./TypingHero";
 import MovieCard from "./MovieCard";
-import MovieModal from "./MovieModal";
 
 const GENRES = [
     { key: "all", label: "All" },
@@ -16,10 +16,10 @@ const GENRES = [
 ];
 
 export default function Browse({ initialMovies }) {
+    const router = useRouter();
     const [movies, setMovies] = useState(initialMovies);
     const [genre, setGenre] = useState("all");
     const [query, setQuery] = useState("");
-    const [selected, setSelected] = useState(null);
     const [failed, setFailed] = useState(false);
     const [myList, setMyList] = useState([]);
     const [continueWatching, setContinueWatching] = useState([]);
@@ -140,7 +140,7 @@ export default function Browse({ initialMovies }) {
                         <h2 className="section-label">Continue watching</h2>
                         <div className="horizontal-scroll">
                             {continueWatching.map((m) => (
-                                <MovieCard key={m.id} movie={m} onClick={() => setSelected(m)} />
+                                <MovieCard key={m.id} movie={m} onClick={() => router.push(`/preview/movie/${m.id}`)} />
                             ))}
                         </div>
                     </>
@@ -150,7 +150,7 @@ export default function Browse({ initialMovies }) {
 
                 <div className="grid">
                     {movies.map((m) => (
-                        <MovieCard key={m.id} movie={m} onClick={() => setSelected(m)} />
+                        <MovieCard key={m.id} movie={m} onClick={() => router.push(`/preview/movie/${m.id}`)} />
                     ))}
                 </div>
 
@@ -164,16 +164,6 @@ export default function Browse({ initialMovies }) {
                     </p>
                 )}
             </main>
-
-            {selected && (
-                <MovieModal
-                    movie={selected}
-                    onClose={() => setSelected(null)}
-                    inList={!!myList.find((m) => m.id === selected.id)}
-                    onToggleList={() => toggleMyList(selected)}
-                    onPlay={() => { addToContinueWatching(selected); setSelected(null); }}
-                />
-            )}
         </>
     );
 }

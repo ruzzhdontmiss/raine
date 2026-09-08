@@ -12,25 +12,19 @@ export default function VidyPlayer({
     nextEpisode = false,
     episodeSelector = false,
     autoplayNextEpisode = false,
-    title,
     onTimeUpdate,
     onEnded,
     onPlay,
     onPause,
+    onFallback,
 }) {
     const [useFallback, setUseFallback] = useState(false);
-    const [isFullscreen, setIsFullscreen] = useState(false);
 
     useEffect(() => {
-        const onFullscreenChange = () => {
-            setIsFullscreen(!!document.fullscreenElement);
-        };
-        document.addEventListener("fullscreenchange", onFullscreenChange);
-        return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
-    }, []);
-
-    useEffect(() => {
-        if (useFallback) return;
+        if (useFallback) {
+            onFallback?.();
+            return;
+        }
 
         const handleMessage = (event) => {
             if (typeof event.data !== "string") return;
@@ -55,57 +49,46 @@ export default function VidyPlayer({
 
         window.addEventListener("message", handleMessage);
         return () => window.removeEventListener("message", handleMessage);
-    }, [useFallback, onTimeUpdate, onEnded, onPlay, onPause]);
+    }, [useFallback, onTimeUpdate, onEnded, onPlay, onPause, onFallback]);
 
     if (!tmdbId) {
         return (
-            <div className="vidy-wrapper">
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", height: "100%", color: "var(--ink-soft)" }}>
-                    Content unavailable
-                </div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", height: "100%", color: "rgba(255,255,255,0.5)" }}>
+                Content unavailable
             </div>
         );
     }
 
-    let src = "";
-    if (type === "movie") {
-        src = `https://vidy.st/movie/${tmdbId}?color=${color}&progress=${progress}`;
-    } else if (type === "tv") {
-        src = `https://vidy.st/tv/${tmdbId}/${season}/${episode}?color=${color}&progress=${progress}&nextEpisode=${nextEpisode}&episodeSelector=${episodeSelector}&autoplayNextEpisode=${autoplayNextEpisode}`;
+    if (useFallback) {
+        return (
+            <video
+                src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+                controls
+                autoPlay
+                controlsList="nodownload"
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                onTimeUpdate={(e) => onTimeUpdate?.(e.target.currentTime, e.target.duration)}
+                onEnded={onEnded}
+                onPlay={onPlay}
+                onPause={onPause}
+            />
+        );
     }
 
-    return (
-        <div className={`vidy-wrapper ${isFullscreen ? "fullscreen" : ""}`}>
-            {useFallback && (
-                <div style={{ position: "absolute", bottom: "1rem", left: "1rem", fontSize: "12px", opacity: 0.5, zIndex: 10 }}>
-                    ⚡
-                </div>
-            )}
+    let src = type === "movie" 
+        ? `https://vidy.st/movie/${tmdbId}?color=${color}&progress=${progress}` 
+        : `https://vidy.st/tv/${tmdbId}/${season}/${episode}?color=${color}&progress=${progress}&nextEpisode=${nextEpisode}&episodeSelector=${episodeSelector}&autoplayNextEpisode=${autoplayNextEpisode}`;
 
-            {useFallback ? (
-                <video
-                    src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-                    controls
-                    autoPlay
-                    controlsList="nodownload"
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    onTimeUpdate={(e) => onTimeUpdate?.(e.target.currentTime, e.target.duration)}
-                    onEnded={onEnded}
-                    onPlay={onPlay}
-                    onPause={onPause}
-                />
-            ) : (
-                <iframe
-                    src={src}
-                    width="100%"
-                    height="100%"
-                    frameBorder="0"
-                    allowFullScreen
-                    allow="encrypted-media; autoplay; fullscreen; picture-in-picture; web-share"
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    onError={() => setUseFallback(true)}
-                ></iframe>
-            )}
-        </div>
+    return (
+        <iframe
+            src={src}
+            width="100%"
+            height="100%"
+            frameBorder="0"
+            allowFullScreen
+            allow="encrypted-media; autoplay; fullscreen; picture-in-picture; web-share"
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            onError={() => setUseFallback(true)}
+        ></iframe>
     );
 }
