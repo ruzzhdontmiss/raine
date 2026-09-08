@@ -25,7 +25,7 @@ export default function RootLayout({ children }) {
       <body className={`${fraunces.variable} ${sora.variable}`} suppressHydrationWarning>
         <RainCanvas />
         {children}
-        <footer className="footer">built as a study project · Next.js fullstack</footer>
+        <footer className="footer">watch calmly</footer>
       </body>
     </html>
   );

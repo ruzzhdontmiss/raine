@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 
 export default function VidyPlayer({
     tmdbId,
@@ -19,7 +19,15 @@ export default function VidyPlayer({
     onPause,
 }) {
     const [useFallback, setUseFallback] = useState(false);
-    const iframeRef = useRef(null);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
+    useEffect(() => {
+        const onFullscreenChange = () => {
+            setIsFullscreen(!!document.fullscreenElement);
+        };
+        document.addEventListener("fullscreenchange", onFullscreenChange);
+        return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
+    }, []);
 
     useEffect(() => {
         if (useFallback) return;
@@ -67,17 +75,10 @@ export default function VidyPlayer({
     }
 
     return (
-        <div className="vidy-wrapper">
-            <button
-                onClick={() => setUseFallback((prev) => !prev)}
-                className="vidy-toggle"
-            >
-                {useFallback ? "Try Vidy" : "Demo Fallback"}
-            </button>
-
+        <div className={`vidy-wrapper ${isFullscreen ? "fullscreen" : ""}`}>
             {useFallback && (
-                <div className="vidy-badge">
-                    ⚡ Demo Mode
+                <div style={{ position: "absolute", bottom: "1rem", left: "1rem", fontSize: "12px", opacity: 0.5, zIndex: 10 }}>
+                    ⚡
                 </div>
             )}
 
@@ -86,6 +87,7 @@ export default function VidyPlayer({
                     src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
                     controls
                     autoPlay
+                    controlsList="nodownload"
                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                     onTimeUpdate={(e) => onTimeUpdate?.(e.target.currentTime, e.target.duration)}
                     onEnded={onEnded}
@@ -94,14 +96,14 @@ export default function VidyPlayer({
                 />
             ) : (
                 <iframe
-                    ref={iframeRef}
                     src={src}
                     width="100%"
                     height="100%"
                     frameBorder="0"
                     allowFullScreen
-                    allow="encrypted-media; autoplay; fullscreen; picture-in-picture"
+                    allow="encrypted-media; autoplay; fullscreen; picture-in-picture; web-share"
                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    onError={() => setUseFallback(true)}
                 ></iframe>
             )}
         </div>
