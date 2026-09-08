@@ -243,7 +243,7 @@ export default function PreviewClient({ id, movie }) {
                                     {c.profile_path ? (
                                         <img src={`https://image.tmdb.org/t/p/w185${c.profile_path}`} alt={c.name} />
                                     ) : (
-                                        <div style={{ width: '100%', aspectRatio: '3/4', background: 'rgba(255,255,255,0.1)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <div style={{ width: '100%', height: '160px', background: 'rgba(255,255,255,0.1)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                             <span style={{ fontSize: '2rem', color: 'rgba(255,255,255,0.2)' }}>?</span>
                                         </div>
                                     )}

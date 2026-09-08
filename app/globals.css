@@ -394,16 +394,18 @@ main {
 
 .cast-card {
   flex: 0 0 120px;
+  width: 120px;
   scroll-snap-align: start;
   text-align: center;
 }
 
 .cast-card img {
   width: 100%;
-  aspect-ratio: 3/4;
+  height: 160px;
   object-fit: cover;
   border-radius: 8px;
   transition: transform 0.2s ease;
+  display: block;
 }
 
 .cast-card:hover img {
