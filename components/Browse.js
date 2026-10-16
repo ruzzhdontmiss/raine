@@ -106,7 +106,9 @@ export default function Browse({ initialMovies }) {
                 release_date: item.release_date,
             };
             const newList = exists ? prev.filter((m) => m.id !== item.id) : [normalized, ...prev];
-            localStorage.setItem("myList", JSON.stringify(newList));
+            try {
+                localStorage.setItem("myList", JSON.stringify(newList));
+            } catch (e) {}
             return newList;
         });
     };

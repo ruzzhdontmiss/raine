@@ -91,7 +91,9 @@ export default function TvPreviewClient({ id, show }) {
                 first_air_date: show.first_air_date,
             };
             const newList = exists ? prev.filter((m) => m.id !== show.id) : [item, ...prev];
-            localStorage.setItem("myList", JSON.stringify(newList));
+            try {
+                localStorage.setItem("myList", JSON.stringify(newList));
+            } catch (e) {}
             setInList(!exists);
             return newList;
         });

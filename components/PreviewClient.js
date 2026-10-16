@@ -76,7 +76,9 @@ export default function PreviewClient({ id, movie }) {
         setMyList((prev) => {
             const exists = prev.find((m) => m.id === movie.id);
             const newList = exists ? prev.filter((m) => m.id !== movie.id) : [movie, ...prev];
-            localStorage.setItem("myList", JSON.stringify(newList));
+            try {
+                localStorage.setItem("myList", JSON.stringify(newList));
+            } catch (e) {}
             setInList(!exists);
             return newList;
         });
