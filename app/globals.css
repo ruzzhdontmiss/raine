@@ -996,6 +996,63 @@ main {
   position: relative;
 }
 
+.watch-player-frame:fullscreen,
+.watch-player-frame:-webkit-full-screen {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  aspect-ratio: auto;
+  border-radius: 0;
+  border: none;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.watch-player-frame:fullscreen iframe,
+.watch-player-frame:fullscreen video,
+.watch-player-frame:-webkit-full-screen iframe,
+.watch-player-frame:-webkit-full-screen video {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.watch-fs-exit-floating {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 100;
+  color: #fff;
+  background: rgba(22, 34, 43, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-family: var(--font-sora), sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.watch-fs-exit-floating:hover {
+  background: rgba(22, 34, 43, 0.98);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.watch-header-fs {
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.watch-header-fs:hover {
+  background: rgba(127, 179, 213, 0.22);
+  border-color: rgba(127, 179, 213, 0.45);
+}
+
 .watch-controls-row {
   display: flex;
   align-items: center;

@@ -95,8 +95,10 @@ export default function VidyPlayer({
             height="100%"
             frameBorder="0"
             allowFullScreen
-            allow="encrypted-media; autoplay; fullscreen; picture-in-picture; web-share"
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            webkitallowfullscreen="true"
+            mozallowfullscreen="true"
+            allow="autoplay; fullscreen *; encrypted-media; picture-in-picture; web-share"
+            style={{ width: "100%", height: "100%", border: 0, display: "block" }}
             onError={() => setUseFallback(true)}
         ></iframe>
     );
