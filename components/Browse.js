@@ -10,7 +10,7 @@ const MEDIA_FILTERS = [
     { key: "tv", label: "TV" },
 ];
 
-const GENRES = [
+const GENRES_MOVIE = [
     { key: "all", label: "All" },
     { key: "18", label: "Drama" },
     { key: "878", label: "Sci-Fi" },
@@ -20,6 +20,33 @@ const GENRES = [
     { key: "recommendations", label: "For You" },
     { key: "my-list", label: "My List" },
 ];
+
+const GENRES_TV = [
+    { key: "all", label: "All" },
+    { key: "18", label: "Drama" },
+    { key: "10765", label: "Sci-Fi" },
+    { key: "80", label: "Thriller" }, // TMDB TV: Crime/Thriller is 80
+    { key: "10759", label: "Action" }, // TMDB TV: Action & Adventure is 10759
+    { key: "16", label: "Animation" },
+    { key: "recommendations", label: "For You" },
+    { key: "my-list", label: "My List" },
+];
+
+const GENRE_MAP_MOVIE_TO_TV = {
+    "18": "18",
+    "878": "10765",
+    "53": "80",
+    "28": "10759",
+    "16": "16",
+};
+
+const GENRE_MAP_TV_TO_MOVIE = {
+    "18": "18",
+    "10765": "878",
+    "80": "53",
+    "10759": "28",
+    "16": "16",
+};
 
 export default function Browse({ initialMovies }) {
     const router = useRouter();
@@ -49,6 +76,19 @@ export default function Browse({ initialMovies }) {
             setContinueWatching(migratedCw);
         } catch (e) {}
     }, []);
+
+    const handleMediaFilterChange = (newFilter) => {
+        if (newFilter === mediaFilter) return;
+        setMediaFilter(newFilter);
+        setQuery("");
+        if (newFilter === "tv" && GENRE_MAP_MOVIE_TO_TV[genre]) {
+            setGenre(GENRE_MAP_MOVIE_TO_TV[genre]);
+        } else if (newFilter === "movie" && GENRE_MAP_TV_TO_MOVIE[genre]) {
+            setGenre(GENRE_MAP_TV_TO_MOVIE[genre]);
+        } else if (newFilter === "all" && GENRE_MAP_TV_TO_MOVIE[genre]) {
+            setGenre(GENRE_MAP_TV_TO_MOVIE[genre]);
+        }
+    };
 
     const toggleMyList = (item) => {
         setMyList((prev) => {
@@ -115,10 +155,9 @@ export default function Browse({ initialMovies }) {
                 ? `/api/recommendations?ids=${allIds.slice(0, 3).join(",")}${typeQuery}`
                 : `/api/recommendations${typeQuery ? `?${typeQuery.slice(1)}` : ""}`;
         } else if (genre === "all") {
-            url = mediaFilter === "tv" ? "/api/tv/popular" : "/api/popular";
+            url = `/api/popular?type=${mediaFilter}`;
         } else {
-            const typeQuery = mediaFilter !== "all" ? `?type=${mediaFilter}` : "";
-            url = `/api/genre/${genre}${typeQuery}`;
+            url = `/api/genre/${genre}?type=${mediaFilter}`;
         }
 
         // debounce typing 400ms; tab clicks fire immediately
@@ -144,6 +183,9 @@ export default function Browse({ initialMovies }) {
         return () => { clearTimeout(timer); controller.abort(); };
     }, [genre, query, mediaFilter, myList, continueWatching]);
 
+    const activeGenres = mediaFilter === "tv" ? GENRES_TV : GENRES_MOVIE;
+    const currentGenreObj = activeGenres.find((g) => g.key === genre) || GENRES_MOVIE.find((g) => g.key === genre) || GENRES_TV.find((g) => g.key === genre);
+
     const hasHistory = continueWatching.length > 0 || myList.length > 0;
     const q = query.trim();
     const label = q
@@ -154,7 +196,7 @@ export default function Browse({ initialMovies }) {
                 ? "Your saved titles"
                 : genre === "recommendations"
                     ? (hasHistory ? "Recommended for you" : "Curated for rainy evenings")
-                    : `${GENRES.find((g) => g.key === genre)?.label || "Selected"} ${mediaFilter === "tv" ? "series" : "films"}`;
+                    : `${currentGenreObj?.label || "Selected"} ${mediaFilter === "tv" ? "series" : mediaFilter === "movie" ? "films" : "titles"}`;
 
     return (
         <>
@@ -167,7 +209,7 @@ export default function Browse({ initialMovies }) {
                             <button
                                 key={f.key}
                                 className={`tab ${mediaFilter === f.key ? "active" : ""}`}
-                                onClick={() => setMediaFilter(f.key)}
+                                onClick={() => handleMediaFilterChange(f.key)}
                             >
                                 {f.label}
                             </button>
@@ -175,7 +217,7 @@ export default function Browse({ initialMovies }) {
                     </nav>
 
                     <nav className="tabs" aria-label="Genre categories">
-                        {GENRES.map((g) => (
+                        {activeGenres.map((g) => (
                             <button
                                 key={g.key}
                                 className={`tab ${genre === g.key && !q ? "active" : ""}`}
@@ -219,10 +261,11 @@ export default function Browse({ initialMovies }) {
                 <h2 className="section-label">{label}</h2>
 
                 <div className="grid">
-                    {movies.map((m) => (
+                    {movies.map((m, index) => (
                         <MovieCard
                             key={`grid-${m.type || m.media_type || "item"}-${m.id}`}
                             movie={m}
+                            priority={index < 4}
                             onClick={() => handleCardClick(m)}
                         />
                     ))}
