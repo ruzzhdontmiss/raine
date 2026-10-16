@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { buildVidyUrl } from "@/lib/vidy";
 
 export default function VidyPlayer({
     tmdbId,
@@ -75,9 +76,17 @@ export default function VidyPlayer({
         );
     }
 
-    let src = type === "movie" 
-        ? `https://vidy.st/movie/${tmdbId}?color=${color}&progress=${progress}` 
-        : `https://vidy.st/tv/${tmdbId}/${season}/${episode}?color=${color}&progress=${progress}&nextEpisode=${nextEpisode}&episodeSelector=${episodeSelector}&autoplayNextEpisode=${autoplayNextEpisode}`;
+    const src = buildVidyUrl({
+        type,
+        id: tmdbId,
+        season,
+        episode,
+        color,
+        progress,
+        nextEpisode,
+        episodeSelector,
+        autoplayNextEpisode,
+    });
 
     return (
         <iframe

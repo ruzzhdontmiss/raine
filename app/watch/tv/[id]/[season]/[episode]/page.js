@@ -1,73 +1,60 @@
-"use client";
+import { tmdb } from "@/lib/tmdb";
+import TvWatchClient from "@/components/TvWatchClient";
 
-import { useEffect, useState, use } from "react";
-import { useRouter } from "next/navigation";
-import VidyPlayer from "@/components/VidyPlayer";
+export async function generateMetadata({ params }) {
+    const { id, season, episode } = await params;
+    try {
+        const show = await tmdb(`/tv/${id}`);
+        return {
+            title: `${show.name} S${season}E${episode} — RAINE`,
+            description: `Watch ${show.name} Season ${season} Episode ${episode} calmly.`,
+        };
+    } catch {
+        return { title: "Watch TV — RAINE" };
+    }
+}
 
-export default function TVWatchPage({ params }) {
-    const router = useRouter();
-    const resolvedParams = use(params);
-    const { id, season, episode } = resolvedParams;
+export default async function TVWatchPage({ params }) {
+    const { id, season, episode } = await params;
 
-    const [showData, setShowData] = useState(null);
-    const [initialProgress, setInitialProgress] = useState(0);
-    const [loaded, setLoaded] = useState(false);
+    let show = null;
+    let seasonData = null;
 
-    useEffect(() => {
-        // Fetch show details for the title
-        fetch(`/api/tv/${id}`)
-            .then((res) => res.json())
-            .then((data) => setShowData(data))
-            .catch((err) => console.error("Failed to fetch tv details", err));
+    try {
+        const [showRes, seasonRes] = await Promise.all([
+            tmdb(`/tv/${id}`),
+            tmdb(`/tv/${id}/season/${season}`),
+        ]);
+        show = showRes;
+        seasonData = seasonRes;
+    } catch (err) {
+        console.error("Failed to load TV watch data", err);
+    }
 
-        // Load progress
-        const key = `progress-tv-${id}-${season}-${episode}`;
-        try {
-            const saved = localStorage.getItem(key);
-            if (saved) setInitialProgress(parseFloat(saved));
-        } catch (e) {
-            // Ignore errors
-        }
-        setLoaded(true);
-    }, [id, season, episode]);
+    if (!show) {
+        return (
+            <div style={{ display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center", color: "var(--ink)" }}>
+                <h2>TV show not found.</h2>
+            </div>
+        );
+    }
 
-    const handleTimeUpdate = (currentTime) => {
-        const key = `progress-tv-${id}-${season}-${episode}`;
-        try {
-            localStorage.setItem(key, currentTime.toString());
-        } catch (e) {
-            // Ignore errors
-        }
-    };
-
-    if (!loaded) return null;
-
-    const title = showData ? `${showData.name} - S${season}E${episode}` : "TV Viewer";
+    const sNum = parseInt(season, 10);
+    const epNum = parseInt(episode, 10);
+    const episodes = seasonData?.episodes || [];
+    const currentIndex = episodes.findIndex((e) => e.episode_number === epNum);
+    const currentEpisode = currentIndex >= 0 ? episodes[currentIndex] : { episode_number: epNum, name: `Episode ${epNum}` };
+    const prevEpisode = currentIndex > 0 ? episodes[currentIndex - 1] : null;
+    const nextEpisode = currentIndex >= 0 && currentIndex < episodes.length - 1 ? episodes[currentIndex + 1] : null;
 
     return (
-        <div className="watch-page">
-            <header className="watch-header">
-                <button 
-                    onClick={() => router.push("/")}
-                    className="watch-back-btn"
-                >
-                    ← <span>Back to Browse</span>
-                </button>
-                <h1 className="watch-title">{title}</h1>
-            </header>
-
-            <main className="watch-main">
-                <div className="watch-player-wrapper">
-                    <VidyPlayer 
-                        tmdbId={id}
-                        type="tv"
-                        season={season}
-                        episode={episode}
-                        progress={initialProgress}
-                        onTimeUpdate={handleTimeUpdate}
-                    />
-                </div>
-            </main>
-        </div>
+        <TvWatchClient
+            show={show}
+            season={sNum}
+            episode={epNum}
+            episodeData={currentEpisode}
+            prevEpisode={prevEpisode}
+            nextEpisode={nextEpisode}
+        />
     );
 }
