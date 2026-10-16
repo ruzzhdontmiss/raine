@@ -31,6 +31,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://image.tmdb.org" />
+        <link rel="dns-prefetch" href="https://image.tmdb.org" />
+      </head>
       <body className={`${fraunces.variable} ${sora.variable}`} suppressHydrationWarning>
         <RainCanvas />
         {children}

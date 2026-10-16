@@ -92,7 +92,7 @@ export default function PreviewClient({ id, movie }) {
         setIsPlaying(true);
     };
 
-    const backdropUrl = movie.backdrop_path ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}` : "";
+    const backdropUrl = movie.backdrop_path ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}` : "";
     
     const year = movie.release_date ? movie.release_date.substring(0, 4) : "";
     const rating = movie.vote_average?.toFixed(1) || "";

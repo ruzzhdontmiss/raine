@@ -106,7 +106,7 @@ export default function TvPreviewClient({ id, show }) {
         router.push(`/watch/tv/${id}/${selectedSeason}/${firstEp}`);
     };
 
-    const backdropUrl = show.backdrop_path ? `https://image.tmdb.org/t/p/original${show.backdrop_path}` : "";
+    const backdropUrl = show.backdrop_path ? `https://image.tmdb.org/t/p/w1280${show.backdrop_path}` : "";
     const year = show.first_air_date ? show.first_air_date.substring(0, 4) : "";
     const rating = show.vote_average?.toFixed(1) || "";
     

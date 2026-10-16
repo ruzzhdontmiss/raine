@@ -1,8 +1,10 @@
 import Image from "next/image";
 
 const IMG = "https://image.tmdb.org/t/p/w500";
+const BLUR_DATA_URL =
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkWPifDwAErAH8yC7o7wAAAABJRU5ErkJggg==";
 
-export default function MovieCard({ movie, onClick }) {
+export default function MovieCard({ movie, priority = false, onClick }) {
     const isTv = movie.type === "tv" || movie.media_type === "tv" || !!movie.first_air_date;
     const title = movie.title || movie.name || "Untitled";
     const year = (movie.release_date || movie.first_air_date || "—").slice(0, 4);
@@ -19,12 +21,17 @@ export default function MovieCard({ movie, onClick }) {
                         src={posterPath.startsWith("http") ? posterPath : IMG + posterPath}
                         alt={title}
                         fill
-                        sizes="(max-width: 600px) 45vw, 200px"
+                        priority={priority}
+                        sizes="(max-width: 860px) 45vw, 300px"
+                        placeholder="blur"
+                        blurDataURL={BLUR_DATA_URL}
                         style={{ objectFit: "cover" }}
                         className="poster-image"
                     />
                 ) : (
-                    <span className="poster-fallback">{title}</span>
+                    <div className="poster-fallback-tile">
+                        <span className="poster-fallback-title">{title}</span>
+                    </div>
                 )}
                 <span className="media-tag">{isTv ? "TV" : "Film"}</span>
             </div>
