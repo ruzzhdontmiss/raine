@@ -17,10 +17,10 @@ export default function PreviewClient({ id, movie }) {
     const trailer = movie.videos?.results?.find((v) => v.type === "Trailer" && v.site === "YouTube");
     const initialTrailerKey = trailer ? trailer.key : null;
 
-    const [logo] = useState(initialLogo);
-    const [trailerKey] = useState(initialTrailerKey);
-    const [cast] = useState(movie.credits?.cast?.slice(0, 12) || []);
-    const [recommendations] = useState(movie.recommendations?.results?.slice(0, 10) || []);
+    const logo = initialLogo;
+    const trailerKey = initialTrailerKey;
+    const cast = movie.credits?.cast?.slice(0, 12) || [];
+    const recommendations = movie.recommendations?.results?.slice(0, 10) || [];
     
     const [myList, setMyList] = useState([]);
     const [inList, setInList] = useState(false);

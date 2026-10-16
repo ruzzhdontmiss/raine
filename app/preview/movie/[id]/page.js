@@ -4,11 +4,28 @@ import PreviewClient from "@/components/PreviewClient";
 export async function generateMetadata({ params }) {
     const { id } = await params;
     const movie = await tmdb(`/movie/${id}`).catch(() => null);
-    if (!movie) return { title: "Not Found" };
+    if (!movie) return { title: "Not Found — RAINE" };
     
+    const title = `${movie.title} — RAINE`;
+    const description = (movie.overview || "Watch calmly on RAINE.").slice(0, 160);
+    const imagePath = movie.backdrop_path || movie.poster_path;
+    const imageUrl = imagePath ? `https://image.tmdb.org/t/p/w780${imagePath}` : null;
+
     return {
-        title: `${movie.title} — RAINE preview`,
-        description: movie.overview,
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            type: "video.movie",
+            ...(imageUrl ? { images: [{ url: imageUrl, width: 780, height: 439, alt: movie.title }] } : {}),
+        },
+        twitter: {
+            card: "summary_large_image",
+            title,
+            description,
+            ...(imageUrl ? { images: [imageUrl] } : {}),
+        },
     };
 }
 

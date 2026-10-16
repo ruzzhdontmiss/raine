@@ -15,8 +15,17 @@ const sora = Sora({
 });
 
 export const metadata = {
+  metadataBase: new URL("https://raine.onrender.com"),
   title: "RAINE — watch calmly",
-  description: "A minimal, rainy-lake movie browser. Study project.",
+  description: "A minimal, rainy-lake movie & TV browser. Watch calmly.",
+  openGraph: {
+    title: "RAINE — watch calmly",
+    description: "A minimal, rainy-lake movie & TV browser. Watch calmly.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export default function RootLayout({ children }) {
