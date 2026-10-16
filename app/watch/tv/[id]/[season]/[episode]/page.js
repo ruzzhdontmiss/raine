@@ -21,13 +21,16 @@ export default async function TVWatchPage({ params }) {
     let seasonData = null;
 
     try {
-        const [showRes, seasonRes] = await Promise.all([
-            tmdb(`/tv/${id}`),
-            tmdb(`/tv/${id}/season/${season}`),
-        ]);
-        show = showRes;
-        seasonData = seasonRes;
+        show = await tmdb(`/tv/${id}`);
+        seasonData = await tmdb(`/tv/${id}/season/${season}`);
     } catch (err) {
+        if (!show) {
+            try {
+                show = await tmdb(`/tv/${id}`);
+            } catch (e) {
+                console.error("Failed to load TV show", e);
+            }
+        }
         console.error("Failed to load TV watch data", err);
     }
 

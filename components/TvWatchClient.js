@@ -14,7 +14,6 @@ export default function TvWatchClient({
 }) {
     const [initialProgress, setInitialProgress] = useState(0);
     const [sourceUnavailable, setSourceUnavailable] = useState(false);
-    const [showControls, setShowControls] = useState(true);
     const hasRecorded = useRef(false);
 
     const sNum = Number(season);
@@ -52,21 +51,6 @@ export default function TvWatchClient({
         } catch (e) {}
     }, [show.id, show.name, show.poster_path, sNum, epNum, episodeData?.name]);
 
-    useEffect(() => {
-        let timeout;
-        const handleMouseMove = () => {
-            setShowControls(true);
-            clearTimeout(timeout);
-            timeout = setTimeout(() => setShowControls(false), 3500);
-        };
-
-        window.addEventListener("mousemove", handleMouseMove);
-        return () => {
-            window.removeEventListener("mousemove", handleMouseMove);
-            clearTimeout(timeout);
-        };
-    }, []);
-
     const handleTimeUpdate = (currentTime) => {
         const key = `progress-tv-${show.id}-${sNum}-${epNum}`;
         try {
@@ -82,76 +66,101 @@ export default function TvWatchClient({
         } catch (e) {}
     };
 
-    const title = `${show.name} · S${sNum}E${epNum} ${episodeData?.name ? `“${episodeData.name}”` : ""}`;
+    const epDetails = episodeData?.name ? `S${sNum} E${epNum} · ${episodeData.name}` : `S${sNum} E${epNum}`;
 
     return (
         <div className="watch-page">
-            <header className={`watch-header ${showControls ? "" : "hidden"}`}>
-                <div className="watch-nav-left">
-                    <Link href={`/preview/tv/${show.id}`} className="watch-back-btn">
-                        ← <span>Back to Show</span>
-                    </Link>
-                    <span className="watch-divider">/</span>
-                    <span className="watch-title">{title}</span>
-                </div>
-
-                <div className="watch-nav-right">
-                    {prevEpisode ? (
-                        <Link
-                            href={`/watch/tv/${show.id}/${sNum}/${prevEpisode.episode_number}`}
-                            className="watch-ep-nav-btn"
-                            title={`Previous: E${prevEpisode.episode_number} ${prevEpisode.name}`}
-                        >
-                            ⏮ Prev
+            <div className="watch-container">
+                {/* 1. Header bar: single row, properly spaced */}
+                <header className="watch-header">
+                    <div className="watch-header-left">
+                        <Link href={`/preview/tv/${show.id}`} className="watch-back-link">
+                            ← <span>Back to Show</span>
                         </Link>
-                    ) : (
-                        <span className="watch-ep-nav-btn disabled">⏮ Prev</span>
-                    )}
-
-                    {nextEpisode ? (
-                        <Link
-                            href={`/watch/tv/${show.id}/${sNum}/${nextEpisode.episode_number}`}
-                            className="watch-ep-nav-btn"
-                            title={`Next: E${nextEpisode.episode_number} ${nextEpisode.name}`}
-                        >
-                            Next ⏭
-                        </Link>
-                    ) : (
-                        <span className="watch-ep-nav-btn disabled">Next ⏭</span>
-                    )}
-                </div>
-            </header>
-
-            <main className="watch-main">
-                {sourceUnavailable ? (
-                    <div className="source-unavailable">
-                        <div className="source-unavailable-card">
-                            <h3>Source unavailable for this episode</h3>
-                            <p>No video stream could be reached for S{sNum}E{epNum}.</p>
-                            <div className="source-actions">
-                                <button onClick={() => setSourceUnavailable(false)} className="btn-secondary">
-                                    Retry Player
-                                </button>
-                                <Link href={`/preview/tv/${show.id}`} className="btn-play">
-                                    View All Episodes
-                                </Link>
-                            </div>
+                        <div className="watch-title-group">
+                            <span className="watch-show-title">{show.name}</span>
+                            <span className="watch-ep-subtitle">{epDetails}</span>
                         </div>
                     </div>
-                ) : (
-                    <div className="watch-player-wrapper">
-                        <VidyPlayer
-                            tmdbId={show.id}
-                            type="tv"
-                            season={sNum}
-                            episode={epNum}
-                            progress={initialProgress}
-                            onTimeUpdate={handleTimeUpdate}
-                            onFallback={() => setSourceUnavailable(true)}
-                        />
+                    <div className="watch-header-meta">
+                        <span className="watch-badge">1080p HD</span>
+                        <span className="watch-badge">Audio &amp; Subtitles</span>
                     </div>
-                )}
-            </main>
+                </header>
+
+                {/* 2 & 3. Player section with 24px gap and contained 16/9 player frame */}
+                <main className="watch-main">
+                    {sourceUnavailable ? (
+                        <div className="source-unavailable">
+                            <div className="source-unavailable-card">
+                                <h3>Source unavailable for this episode</h3>
+                                <p>No video stream could be reached for S{sNum}E{epNum}.</p>
+                                <div className="source-actions">
+                                    <button onClick={() => setSourceUnavailable(false)} className="btn-secondary">
+                                        Retry Player
+                                    </button>
+                                    <Link href={`/preview/tv/${show.id}`} className="btn-play">
+                                        View All Episodes
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="watch-player-frame">
+                            <VidyPlayer
+                                tmdbId={show.id}
+                                type="tv"
+                                season={sNum}
+                                episode={epNum}
+                                progress={initialProgress}
+                                onTimeUpdate={handleTimeUpdate}
+                                onFallback={() => setSourceUnavailable(true)}
+                            />
+                        </div>
+                    )}
+
+                    {/* 4. Below the player: control row with [← Back to Show], [⏮ Prev], [Next ⏭] */}
+                    <div className="watch-controls-row">
+                        <Link href={`/preview/tv/${show.id}`} className="watch-pill-btn">
+                            ← Back to Show
+                        </Link>
+                        <div className="watch-nav-pills">
+                            {prevEpisode ? (
+                                <Link
+                                    href={`/watch/tv/${show.id}/${sNum}/${prevEpisode.episode_number}`}
+                                    className="watch-pill-btn"
+                                    title={`Previous: E${prevEpisode.episode_number} ${prevEpisode.name}`}
+                                >
+                                    ⏮ Prev
+                                </Link>
+                            ) : (
+                                <span className="watch-pill-btn disabled">⏮ Prev</span>
+                            )}
+
+                            {nextEpisode ? (
+                                <Link
+                                    href={`/watch/tv/${show.id}/${sNum}/${nextEpisode.episode_number}`}
+                                    className="watch-pill-btn"
+                                    title={`Next: E${nextEpisode.episode_number} ${nextEpisode.name}`}
+                                >
+                                    Next ⏭
+                                </Link>
+                            ) : (
+                                <span className="watch-pill-btn disabled">Next ⏭</span>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* 5. Meta row under the player */}
+                    <div className="watch-meta-row">
+                        <span className="watch-meta-item">Stream: Vidy Multi-Source</span>
+                        <span className="watch-meta-dot">•</span>
+                        <span className="watch-meta-item">Subtitles &amp; Audio available in player</span>
+                        <span className="watch-meta-dot">•</span>
+                        <span className="watch-meta-item">Season {sNum}, Episode {epNum}</span>
+                    </div>
+                </main>
+            </div>
         </div>
     );
 }
