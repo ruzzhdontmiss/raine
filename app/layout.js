@@ -1,5 +1,6 @@
 import { Fraunces, Sora } from "next/font/google";
 import RainCanvas from "@/components/RainCanvas";
+import Link from "next/link";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -40,7 +41,17 @@ export default function RootLayout({ children }) {
       <body className={`${fraunces.variable} ${sora.variable}`} suppressHydrationWarning>
         <RainCanvas />
         {children}
-        <footer className="footer">watch calmly</footer>
+        <footer className="footer">
+          <p className="footer-disclaimer">
+            RAINE does not host, store, or distribute any media files. All content is sourced from third-party providers.
+          </p>
+          <div className="footer-legal-links">
+            <Link href="/legal/terms" className="footer-bracket-link">[ Terms ]</Link>
+            <Link href="/legal/privacy" className="footer-bracket-link">[ Privacy ]</Link>
+            <Link href="/legal/dmca" className="footer-bracket-link">[ DMCA ]</Link>
+          </div>
+          <div className="footer-tagline">watch calmly</div>
+        </footer>
       </body>
     </html>
   );

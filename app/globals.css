@@ -580,9 +580,49 @@ main {
 
 .footer {
   text-align: center;
-  padding: 30px;
+  padding: 48px 24px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.footer-disclaimer {
+  max-width: 640px;
   font-size: 0.75rem;
+  line-height: 1.5;
   color: var(--ink-soft);
+  opacity: 0.85;
+}
+
+.footer-legal-links {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.footer-bracket-link {
+  font-size: 0.78rem;
+  font-family: var(--font-sora), sans-serif;
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  letter-spacing: 0.02em;
+}
+
+.footer-bracket-link:hover {
+  color: var(--dark);
+  text-decoration: underline;
+}
+
+.footer-tagline {
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  opacity: 0.6;
+  font-style: italic;
+  font-family: var(--font-fraunces), serif;
+  margin-top: 4px;
 }
 
 @media (max-width: 560px) {
@@ -1120,4 +1160,175 @@ main {
     align-self: flex-end;
   }
 }
+
+/* ---------- Legal Pages (Rainy-lake editorial) ---------- */
+.legal-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+  position: relative;
+  z-index: 1;
+}
+
+.legal-back-nav {
+  margin-bottom: 24px;
+}
+
+.legal-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-family: var(--font-sora), sans-serif;
+  color: var(--ink-soft);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  transition: all 0.25s ease;
+}
+
+.legal-back-link:hover {
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--ink);
+  transform: translateX(-2px);
+}
+
+.legal-card {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: var(--radius);
+  padding: 42px 36px;
+  box-shadow: 0 12px 36px rgba(27, 42, 53, 0.06);
+}
+
+.legal-eyebrow {
+  display: inline-block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.legal-title {
+  font-family: var(--font-fraunces), serif;
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.2;
+  margin-bottom: 10px;
+  letter-spacing: -0.02em;
+}
+
+.legal-meta {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(27, 42, 53, 0.1);
+}
+
+.legal-content {
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--ink);
+}
+
+.legal-content h2 {
+  font-family: var(--font-fraunces), serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 28px;
+  margin-bottom: 10px;
+  color: var(--dark);
+}
+
+.legal-content p {
+  margin-bottom: 16px;
+  color: #273b49;
+}
+
+.legal-content ul {
+  margin-left: 20px;
+  margin-bottom: 16px;
+}
+
+.legal-content li {
+  margin-bottom: 6px;
+  color: #273b49;
+}
+
+.legal-content code {
+  background: rgba(22, 34, 43, 0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+
+.legal-content a {
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  transition: color 0.2s ease;
+}
+
+.legal-content a:hover {
+  color: var(--dark);
+}
+
+/* Legal index grid */
+.legal-index-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.legal-index-item {
+  display: block;
+  padding: 20px 24px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 14px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.legal-index-item:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(27, 42, 53, 0.08);
+}
+
+.legal-index-item h3 {
+  font-family: var(--font-fraunces), serif;
+  font-size: 1.15rem;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.legal-index-item p {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .legal-card {
+    padding: 28px 20px;
+  }
+  .legal-title {
+    font-size: 1.75rem;
+  }
+}
+
 
