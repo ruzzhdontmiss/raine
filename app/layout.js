@@ -14,8 +14,10 @@ const sora = Sora({
   weight: ["300", "400", "600"],
 });
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://raine.vercel.app";
+
 export const metadata = {
-  metadataBase: new URL("https://raine.onrender.com"),
+  metadataBase: new URL(BASE_URL),
   title: "RAINE — watch calmly",
   description: "A minimal, rainy-lake movie & TV browser. Watch calmly.",
   openGraph: {
