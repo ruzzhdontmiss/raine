@@ -14,9 +14,7 @@ export default function TvWatchClient({
 }) {
     const [initialProgress, setInitialProgress] = useState(0);
     const [sourceUnavailable, setSourceUnavailable] = useState(false);
-    const [isFullscreen, setIsFullscreen] = useState(false);
     const hasRecorded = useRef(false);
-    const playerFrameRef = useRef(null);
 
     const sNum = Number(season);
     const epNum = Number(episode);
@@ -52,95 +50,6 @@ export default function TvWatchClient({
             localStorage.setItem("continueWatching", JSON.stringify(updated));
         } catch (e) {}
     }, [show.id, show.name, show.poster_path, sNum, epNum, episodeData?.name]);
-
-    const toggleFullscreen = () => {
-        const isFs = Boolean(
-            document.fullscreenElement ||
-            document.webkitFullscreenElement ||
-            document.webkitCurrentFullScreenElement ||
-            document.mozFullScreenElement ||
-            document.msFullscreenElement
-        );
-
-        if (isFs) {
-            setIsFullscreen(false);
-            if (document.exitFullscreen) {
-                document.exitFullscreen().catch(() => {});
-            } else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-            } else if (document.mozCancelFullScreen) {
-                document.mozCancelFullScreen();
-            } else if (document.msExitFullscreen) {
-                document.msExitFullscreen();
-            }
-        } else {
-            const el = playerFrameRef.current;
-            if (el) {
-                setIsFullscreen(true);
-                const req =
-                    el.requestFullscreen ||
-                    el.webkitRequestFullscreen ||
-                    el.webkitRequestFullScreen ||
-                    el.mozRequestFullScreen ||
-                    el.msRequestFullscreen;
-                if (req) {
-                    try {
-                        const promise = req.call(el);
-                        if (promise && typeof promise.then === "function") {
-                            promise
-                                .then(() => setIsFullscreen(true))
-                                .catch(() => {
-                                    setIsFullscreen(Boolean(
-                                        document.fullscreenElement ||
-                                        document.webkitFullscreenElement ||
-                                        document.webkitCurrentFullScreenElement
-                                    ));
-                                });
-                        }
-                    } catch (e) {
-                        setIsFullscreen(false);
-                    }
-                }
-            }
-        }
-    };
-
-    useEffect(() => {
-        const handleFullscreenChange = () => {
-            const isFs = Boolean(
-                document.fullscreenElement ||
-                document.webkitFullscreenElement ||
-                document.webkitCurrentFullScreenElement ||
-                document.mozFullScreenElement ||
-                document.msFullscreenElement
-            );
-            setIsFullscreen(isFs);
-        };
-
-        const events = [
-            "fullscreenchange",
-            "webkitfullscreenchange",
-            "mozfullscreenchange",
-            "MSFullscreenChange",
-        ];
-        events.forEach((evt) => document.addEventListener(evt, handleFullscreenChange));
-
-        const handleKeyDown = (e) => {
-            if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
-            if (e.key === "f" || e.key === "F") {
-                e.preventDefault();
-                toggleFullscreen();
-            } else if (e.key === "Escape" && isFullscreen) {
-                toggleFullscreen();
-            }
-        };
-        window.addEventListener("keydown", handleKeyDown);
-
-        return () => {
-            events.forEach((evt) => document.removeEventListener(evt, handleFullscreenChange));
-            window.removeEventListener("keydown", handleKeyDown);
-        };
-    }, [isFullscreen]);
 
     const handleTimeUpdate = (currentTime) => {
         const key = `progress-tv-${show.id}-${sNum}-${epNum}`;
@@ -193,10 +102,7 @@ export default function TvWatchClient({
                             </div>
                         </div>
                     ) : (
-                        <div
-                            className={`watch-player-frame ${isFullscreen ? "is-fullscreen" : ""}`}
-                            ref={playerFrameRef}
-                        >
+                        <div className="watch-player-frame">
                             <VidyPlayer
                                 tmdbId={show.id}
                                 type="tv"
@@ -206,20 +112,10 @@ export default function TvWatchClient({
                                 onTimeUpdate={handleTimeUpdate}
                                 onFallback={() => setSourceUnavailable(true)}
                             />
-                            {/* Floating exit button visible in fullscreen mode (rendered in DOM, toggled via CSS + state) */}
-                            <button
-                                type="button"
-                                onClick={toggleFullscreen}
-                                className="watch-fs-exit-floating"
-                                title="Exit Fullscreen (Esc or f)"
-                                aria-label="Exit Fullscreen"
-                            >
-                                ⊽ Exit Fullscreen
-                            </button>
                         </div>
                     )}
 
-                    {/* 4. Below the player: control row with [← Back to Show], [⏮ Prev], [Next ⏭], [⊼ Fullscreen] */}
+                    {/* 4. Below the player: control row with [← Back to Show], [⏮ Prev], [Next ⏭] */}
                     <div className="watch-controls-row">
                         <Link href={`/preview/tv/${show.id}`} className="watch-pill-btn">
                             ← Back to Show
@@ -248,16 +144,6 @@ export default function TvWatchClient({
                             ) : (
                                 <span className="watch-pill-btn disabled">Next ⏭</span>
                             )}
-
-                            <button
-                                type="button"
-                                onClick={toggleFullscreen}
-                                className="watch-pill-btn watch-fs-pill"
-                                title={isFullscreen ? "Exit Fullscreen (f)" : "Fullscreen (f)"}
-                                aria-label={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-                            >
-                                {isFullscreen ? "⊽ Exit" : "⊼ Fullscreen"}
-                            </button>
                         </div>
                     </div>
 
