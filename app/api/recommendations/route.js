@@ -1,4 +1,6 @@
 import { tmdb } from "@/lib/tmdb";
+import { checkRateLimit } from "@/lib/rateLimit";
+import { isValidIdsList, isValidType } from "@/lib/validation";
 
 const MOVIE_PARAMS = {
     sort_by: "vote_average.desc",
@@ -51,9 +53,16 @@ async function getCuratedFallback(type) {
 }
 
 export async function GET(request) {
+    const rl = checkRateLimit(request, "recommendations");
+    if (!rl.allowed) return rl.response;
+
     const searchParams = new URL(request.url).searchParams;
     const idsParam = searchParams.get("ids");
-    const typeParam = searchParams.get("type"); // "tv" | "movie"
+    const typeParam = searchParams.get("type"); // "tv" | "movie" | "all"
+
+    if (typeParam && !isValidType(typeParam)) {
+        return Response.json({ error: "Invalid type parameter" }, { status: 400 });
+    }
 
     if (!idsParam) {
         try {
@@ -64,11 +73,16 @@ export async function GET(request) {
                 },
             });
         } catch (err) {
-            return Response.json({ error: err.message }, { status: 502 });
+            console.error("Recommendations curated fallback error:", err);
+            return Response.json({ error: "Request failed" }, { status: 502 });
         }
     }
 
-    const ids = idsParam.split(",").slice(0, 3).filter(Boolean);
+    if (!isValidIdsList(idsParam)) {
+        return Response.json({ error: "Invalid IDs list" }, { status: 400 });
+    }
+
+    const ids = idsParam.split(",").map((s) => s.trim()).filter(Boolean).slice(0, 10);
     if (ids.length === 0) {
         try {
             const data = await getCuratedFallback(typeParam);
@@ -78,7 +92,8 @@ export async function GET(request) {
                 },
             });
         } catch (err) {
-            return Response.json({ error: err.message }, { status: 502 });
+            console.error("Recommendations empty IDs fallback error:", err);
+            return Response.json({ error: "Request failed" }, { status: 502 });
         }
     }
 
@@ -146,6 +161,7 @@ export async function GET(request) {
             },
         });
     } catch (err) {
-        return Response.json({ error: err.message }, { status: 502 });
+        console.error("Recommendations error:", err);
+        return Response.json({ error: "Request failed" }, { status: 502 });
     }
 }

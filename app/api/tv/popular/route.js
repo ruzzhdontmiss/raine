@@ -1,7 +1,11 @@
 import { tmdb } from "@/lib/tmdb";
+import { checkRateLimit } from "@/lib/rateLimit";
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(request) {
+    const rl = checkRateLimit(request, "tv");
+    if (!rl.allowed) return rl.response;
+
     try {
         const data = await tmdb("/trending/tv/week");
         return NextResponse.json(data, {
@@ -10,10 +14,7 @@ export async function GET() {
             },
         });
     } catch (err) {
-        const status = err.status || 502;
-        return NextResponse.json(
-            { error: err.message || "Failed to fetch popular TV shows" },
-            { status }
-        );
+        console.error("TV popular route error:", err);
+        return NextResponse.json({ error: "Request failed" }, { status: 502 });
     }
 }

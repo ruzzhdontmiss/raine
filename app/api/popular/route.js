@@ -1,8 +1,17 @@
 import { tmdb } from "@/lib/tmdb";
+import { checkRateLimit } from "@/lib/rateLimit";
+import { isValidType } from "@/lib/validation";
 
 export async function GET(request) {
+    const rl = checkRateLimit(request, "popular");
+    if (!rl.allowed) return rl.response;
+
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type");
+
+    if (type && !isValidType(type)) {
+        return Response.json({ error: "Invalid type parameter" }, { status: 400 });
+    }
 
     try {
         if (type === "tv") {
@@ -51,6 +60,7 @@ export async function GET(request) {
             },
         });
     } catch (err) {
-        return Response.json({ error: err.message }, { status: 502 });
+        console.error("Popular route error:", err);
+        return Response.json({ error: "Request failed" }, { status: 502 });
     }
 }

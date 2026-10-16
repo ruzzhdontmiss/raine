@@ -1,9 +1,17 @@
 import { tmdb } from "@/lib/tmdb";
+import { checkRateLimit } from "@/lib/rateLimit";
+import { isValidId } from "@/lib/validation";
 import { NextResponse } from "next/server";
 
 export async function GET(request, { params }) {
+    const rl = checkRateLimit(request, "tv");
+    if (!rl.allowed) return rl.response;
+
     const { id } = await params;
-    
+    if (!isValidId(id)) {
+        return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+    }
+
     try {
         const data = await tmdb(`/tv/${id}`, {
             append_to_response: "aggregate_credits,videos,images,recommendations,content_ratings",
@@ -15,10 +23,9 @@ export async function GET(request, { params }) {
             },
         });
     } catch (err) {
-        const status = err.status || 502;
-        return NextResponse.json(
-            { error: err.message || "TV show not found" },
-            { status }
-        );
+        console.error("TV details route error:", err);
+        const status = err.status === 404 ? 404 : 502;
+        const msg = err.status === 404 ? "TV show not found" : "Request failed";
+        return NextResponse.json({ error: msg }, { status });
     }
 }

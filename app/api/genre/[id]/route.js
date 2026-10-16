@@ -1,4 +1,6 @@
 import { tmdb } from "@/lib/tmdb";
+import { checkRateLimit } from "@/lib/rateLimit";
+import { isValidId, isValidType } from "@/lib/validation";
 
 // Distinct TMDB genre mappings for movie vs TV
 const MOVIE_TO_TV_GENRES = {
@@ -18,9 +20,19 @@ const TV_TO_MOVIE_GENRES = {
 };
 
 export async function GET(request, { params }) {
+    const rl = checkRateLimit(request, "genre");
+    if (!rl.allowed) return rl.response;
+
     const { id } = await params;
+    if (!isValidId(id)) {
+        return Response.json({ error: "Invalid ID" }, { status: 400 });
+    }
+
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type");
+    if (type && !isValidType(type)) {
+        return Response.json({ error: "Invalid type parameter" }, { status: 400 });
+    }
 
     try {
         if (type === "tv") {
@@ -82,6 +94,7 @@ export async function GET(request, { params }) {
             },
         });
     } catch (err) {
-        return Response.json({ error: err.message }, { status: 502 });
+        console.error("Genre route error:", err);
+        return Response.json({ error: "Request failed" }, { status: 502 });
     }
 }
