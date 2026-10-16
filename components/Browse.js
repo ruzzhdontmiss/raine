@@ -65,12 +65,9 @@ export default function Browse({ initialMovies }) {
             return;
         } else if (genre === "recommendations") {
             const allIds = [...new Set([...continueWatching.map(m => m.id), ...myList.map(m => m.id)])];
-            if (allIds.length === 0) {
-                setMovies([]);
-                setFailed(false);
-                return;
-            }
-            url = `/api/recommendations?ids=${allIds.slice(0, 3).join(",")}`;
+            url = allIds.length > 0
+                ? `/api/recommendations?ids=${allIds.slice(0, 3).join(",")}`
+                : "/api/recommendations";
         } else if (genre === "all") {
             url = "/api/popular";
         } else {
@@ -93,6 +90,7 @@ export default function Browse({ initialMovies }) {
         return () => { clearTimeout(timer); controller.abort(); };
     }, [genre, query]);
 
+    const hasHistory = continueWatching.length > 0 || myList.length > 0;
     const q = query.trim();
     const label = q
         ? `Results for “${q}”`
@@ -101,8 +99,8 @@ export default function Browse({ initialMovies }) {
             : genre === "my-list"
                 ? "Your saved films"
                 : genre === "recommendations"
-                    ? "Recommended for you"
-                    : `${GENRES.find((g) => g.key === genre).label} films`;
+                    ? (hasHistory ? "Recommended for you" : "Curated for rainy evenings")
+                    : `${GENRES.find((g) => g.key === genre)?.label || "Selected"} films`;
 
     return (
         <>
