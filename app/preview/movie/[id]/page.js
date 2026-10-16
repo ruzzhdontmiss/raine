@@ -17,7 +17,10 @@ export default async function PreviewPage({ params }) {
 
     let movie = null;
     try {
-        movie = await tmdb(`/movie/${id}`);
+        movie = await tmdb(`/movie/${id}`, {
+            append_to_response: "images,videos,credits,recommendations",
+            include_image_language: "en,null",
+        });
     } catch (e) {
         console.error("Failed to fetch movie details for preview", e);
     }

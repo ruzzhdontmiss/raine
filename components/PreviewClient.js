@@ -9,10 +9,18 @@ import VidyPlayer from "./VidyPlayer";
 
 export default function PreviewClient({ id, movie }) {
     const router = useRouter();
-    const [logo, setLogo] = useState(null);
-    const [trailerKey, setTrailerKey] = useState(null);
-    const [cast, setCast] = useState([]);
-    const [recommendations, setRecommendations] = useState([]);
+
+    const enLogos = movie.images?.logos?.filter((l) => l.iso_639_1 === "en") || [];
+    const bestLogo = enLogos.length > 0 ? enLogos[0] : movie.images?.logos?.[0];
+    const initialLogo = bestLogo ? `https://image.tmdb.org/t/p/w500${bestLogo.file_path}` : null;
+
+    const trailer = movie.videos?.results?.find((v) => v.type === "Trailer" && v.site === "YouTube");
+    const initialTrailerKey = trailer ? trailer.key : null;
+
+    const [logo] = useState(initialLogo);
+    const [trailerKey] = useState(initialTrailerKey);
+    const [cast] = useState(movie.credits?.cast?.slice(0, 12) || []);
+    const [recommendations] = useState(movie.recommendations?.results?.slice(0, 10) || []);
     
     const [myList, setMyList] = useState([]);
     const [inList, setInList] = useState(false);
@@ -62,46 +70,7 @@ export default function PreviewClient({ id, movie }) {
             setMyList(list);
             setInList(!!list.find((m) => m.id === movie.id));
         } catch (e) {}
-
-        const fetchExtraData = async () => {
-            try {
-                // Fetch images for logo
-                fetch(`/api/movie/${id}/images`)
-                    .then(res => res.json())
-                    .then(data => {
-                        const enLogos = data.logos?.filter(l => l.iso_639_1 === "en") || [];
-                        const bestLogo = enLogos.length > 0 ? enLogos[0] : (data.logos?.[0]);
-                        if (bestLogo) setLogo(`https://image.tmdb.org/t/p/w500${bestLogo.file_path}`);
-                    });
-
-                // Fetch videos for trailer
-                fetch(`/api/movie/${id}/videos`)
-                    .then(res => res.json())
-                    .then(data => {
-                        const trailer = data.results?.find(v => v.type === "Trailer" && v.site === "YouTube");
-                        if (trailer) setTrailerKey(trailer.key);
-                    });
-
-                // Fetch cast
-                fetch(`/api/movie/${id}/credits`)
-                    .then(res => res.json())
-                    .then(data => {
-                        setCast(data.cast?.slice(0, 12) || []);
-                    });
-
-                // Fetch recommendations
-                fetch(`/api/movie/${id}/recommendations`)
-                    .then(res => res.json())
-                    .then(data => {
-                        setRecommendations(data.results?.slice(0, 10) || []);
-                    });
-            } catch (err) {
-                console.error("Failed to fetch preview extra data", err);
-            }
-        };
-
-        fetchExtraData();
-    }, [id, movie.id]);
+    }, [movie.id]);
 
     const toggleMyList = () => {
         setMyList((prev) => {
@@ -241,7 +210,15 @@ export default function PreviewClient({ id, movie }) {
                             {cast.map(c => (
                                 <div key={c.id} className="cast-card">
                                     {c.profile_path ? (
-                                        <img src={`https://image.tmdb.org/t/p/w185${c.profile_path}`} alt={c.name} />
+                                        <div style={{ position: "relative", width: "100%", height: "160px", borderRadius: "8px", overflow: "hidden" }}>
+                                            <Image
+                                                src={`https://image.tmdb.org/t/p/w185${c.profile_path}`}
+                                                alt={c.name}
+                                                fill
+                                                sizes="120px"
+                                                style={{ objectFit: "cover" }}
+                                            />
+                                        </div>
                                     ) : (
                                         <div style={{ width: '100%', height: '160px', background: 'rgba(255,255,255,0.1)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                             <span style={{ fontSize: '2rem', color: 'rgba(255,255,255,0.2)' }}>?</span>
